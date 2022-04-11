@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { beeController, generatePlayer } from './player';
 
 export default class HelloWorldScene extends Phaser.Scene
 {
@@ -48,10 +49,7 @@ export default class HelloWorldScene extends Phaser.Scene
         ground.setScale(2).refreshBody();
 
 
-        this.player = this.physics.add.sprite(100,450,'bee');
-        this.player.setBounce(0.0);
-        this.player.setScale(0.20);
-        this.player.setCollideWorldBounds(true)
+        this.player = generatePlayer(this);
 
         this.enemy = this.physics.add.sprite(500, 450,'bear')
         this.enemy.setCollideWorldBounds(true)
@@ -104,28 +102,6 @@ export default class HelloWorldScene extends Phaser.Scene
     }
     
     update() {
-
-        if(!this.keys)
-        {
-            return;
-        }
-
-        if(this.keys?.left?.isDown) 
-        {
-            this.player?.setVelocityX(-160);
-            this.player?.anims.play('left', true);
-        } 
-        else if (this.keys?.right?.isDown){
-            this.player?.setVelocityX(160);
-            this.player?.anims.play('right', true);
-        }
-        else {
-            this.player?.setVelocityX(0);
-        }
-
-        if (this.keys?.up?.isDown && this.player?.body.touching.down)
-        {
-            this.player?.setVelocityY(-330);
-        }
+        beeController(this.keys, this.player);
     }
 }
