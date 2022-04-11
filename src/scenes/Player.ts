@@ -3,15 +3,19 @@ import Phaser from 'phaser';
 export function generatePlayer(scene: Phaser.Scene): Phaser.Physics.Arcade.Sprite {
     let player: Phaser.Physics.Arcade.Sprite =  scene.physics.add.sprite(100,450,'bee');
     player.setBounce(0.0);
+    player.setGravityY(250);
     player.setScale(0.20);
     player.setCollideWorldBounds(true)
     player.setMaxVelocity(250);
     return player;
 }
 
-export function beeController(keys?: Phaser.Types.Input.Keyboard.CursorKeys, player?: Phaser.Physics.Arcade.Sprite, canFly: boolean): boolean {
+/*
+* Controls the bee
+*/
+export function beeController(keys?: Phaser.Types.Input.Keyboard.CursorKeys, player?: Phaser.Physics.Arcade.Sprite): void {
     if(!keys || !player) {
-        return false;
+        return;
     }
     if(keys.left?.isDown) {
         player.setVelocityX(-160);
@@ -28,9 +32,8 @@ export function beeController(keys?: Phaser.Types.Input.Keyboard.CursorKeys, pla
     if (keys.up?.isDown) {
         if (player.body.touching.down) {
             player?.setVelocityY(-200);
-            return true;
         } else {
-            player?.setAccelerationY(-500);
+            player?.setAccelerationY(-800);
         }
     }
     else {
