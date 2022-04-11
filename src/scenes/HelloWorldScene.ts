@@ -15,7 +15,7 @@ export default class HelloWorldScene extends Phaser.Scene
 
 	preload()
     {
-        this.load.spritesheet('dude', 'assets/bee.png', {
+        this.load.spritesheet('bee', 'assets/bee.png', {
             frameWidth: 128, frameHeight: 96
         })
             
@@ -48,7 +48,7 @@ export default class HelloWorldScene extends Phaser.Scene
         ground.setScale(2).refreshBody()
 
 
-        this.player = this.physics.add.sprite(100,450,'dude')
+        this.player = this.physics.add.sprite(100,450,'bee')
         this.player.setBounce(0.2)
         this.player.setCollideWorldBounds(true)
 
@@ -57,9 +57,8 @@ export default class HelloWorldScene extends Phaser.Scene
 
         this.anims.create({
             key: 'left',
-            frames: this.anims.generateFrameNumbers('dude', { 
+            frames: this.anims.generateFrameNumbers('bee', { 
                 start: 0
-
             }),
             frameRate: 10,
             repeat: -1
@@ -67,7 +66,7 @@ export default class HelloWorldScene extends Phaser.Scene
 
         this.anims.create({
             key: 'right',
-            frames: this.anims.generateFrameNumbers('dude', {
+            frames: this.anims.generateFrameNumbers('bee', {
                 start: 1
             }),
             frameRate: 10,
@@ -118,6 +117,14 @@ export default class HelloWorldScene extends Phaser.Scene
         else if (this.keys?.right?.isDown){
             this.player?.setVelocityX(160)
             this.player?.anims.play('right', true)
+        }
+        else {
+            this.player?.setVelocityX(0)
+        }
+
+        if (this.keys?.up?.isDown && this.player?.body.touching.down)
+        {
+            this.player?.setVelocityY(-330);
         }
     }
 }
