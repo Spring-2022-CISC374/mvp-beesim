@@ -15,7 +15,6 @@
 		"type": "git",
 		"url": "https://github.com/Spring-2022-CISC374/mvp-beesim.git"
 	},
-	"homepage": "https://spring-2022-cisc374.github.io/mvp-beesim/",
 	"devDependencies": {
 		"@babel/core": "^7.10.5",
 		"@babel/plugin-proposal-class-properties": "^7.10.4",
@@ -28,7 +27,8 @@
 		"typescript": "^4.6.2"
 	},
 	"dependencies": {
-		"phaser": "^3.55.2"
+		"phaser": "^3.55.2",
+		"homepage": "https://spring-2022-cisc374.github.io/mvp-beesim/"
 	},
 	"parcelCleanPaths": [
 		"dist"
