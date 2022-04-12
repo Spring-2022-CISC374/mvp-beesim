@@ -7,7 +7,7 @@
 		"predeploy": "npm run build",
 		"deploy": "gh-pages -d dist",
 		"start": "parcel src/index.html -p 8000",
-		"build": "parcel build src/index.html --out-dir dist",
+		"build": "rm -rf dist && parcel build ./src/index.html --public-url https://github.com/Spring-2022-CISC374/mvp-beesim --out-dir dist",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"author": "supertommy",
