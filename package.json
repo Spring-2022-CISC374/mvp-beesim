@@ -1,33 +1,35 @@
 {
-	"name": "phaser3-parcel-template",
+	"name": "bee-sim",
 	"version": "1.0.0",
-	"description": "A template project for Phaser 3 using Parceljs",
+	"description": "An educational game about bees and their effects on the ecosystem",
 	"homepage": "https://spring-2022-cisc374.github.io/mvp-beesim/",
 	"scripts": {
 		"predeploy": "npm run build",
 		"deploy": "gh-pages -d dist",
 		"start": "parcel src/index.html -p 8000",
-		"build": "parcel build src/index.html --out-dir dist",
+		"dev": "cross-env NODE_ENV=development webpack serve",
+		"build": "cross-env NODE_ENV=production webpack --progress",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
-	"author": "supertommy",
+	"author": "Bee-sim group",
 	"license": "MIT",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/Spring-2022-CISC374/mvp-beesim.git"
-	},
+	"repository": "https://github.com/Spring-2022-CISC374/mvp-beesim.git",
 	"devDependencies": {
 		"@babel/core": "^7.17.9",
 		"@babel/plugin-proposal-class-properties": "^7.10.4",
 		"@babel/preset-env": "^7.16.11",
 		"@types/node": "^17.0.23",
+		"@typescript-eslint/eslint-plugin": "^5.19.0",
+		"@typescript-eslint/parser": "^5.19.0",
 		"babel-eslint": "^10.1.0",
 		"babel-loader": "^8.2.4",
 		"clean-webpack-plugin": "^4.0.0",
 		"copy-webpack-plugin": "^10.2.4",
 		"cross-env": "^7.0.3",
 		"css-loader": "^6.7.1",
-		"eslint": "^6.8.0",
+		"eslint": "^8.13.0",
+		"eslint-config-prettier": "^8.5.0",
+		"eslint-plugin-prettier": "^4.0.0",
 		"gh-pages": "^3.2.3",
 		"html-loader": "^3.1.0",
 		"html-webpack-plugin": "5.0.0-alpha.10",
@@ -35,6 +37,7 @@
 		"minimist": ">=1.2.2",
 		"parcel-plugin-clean-easy": "^1.0.2",
 		"parcel-plugin-static-files-copy": "^2.4.3",
+		"prettier": "^2.6.2",
 		"style-loader": "^3.3.1",
 		"terser-webpack-plugin": "^5.3.1",
 		"ts-loader": "^9.2.8",
@@ -44,7 +47,8 @@
 		"webpack-dev-server": "^4.8.1"
 	},
 	"dependencies": {
-		"phaser": "^3.55.2"
+		"phaser": "^3.55.2",
+		"react-router-dom": "^6.3.0"
 	},
 	"parcelCleanPaths": [
 		"dist"
@@ -52,5 +56,6 @@
 	"staticFiles": {
 		"staticPath": "public",
 		"watcherGlob": "**"
-	}
+	},
+	"main": "./src/main.ts"
 }
