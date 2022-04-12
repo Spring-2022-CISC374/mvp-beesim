@@ -52,7 +52,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/mvp-beesim/devgen.vendors.485d9cb2906de36b0fbb.bundle.js"
   },
   {
-    "revision": "b98e3aa9ebbb2e9bfae5cdb47dd8e39c",
+    "revision": "2731906e4e4f7234da598e360721f814",
     "url": "/mvp-beesim/devindex.html"
   },
   {

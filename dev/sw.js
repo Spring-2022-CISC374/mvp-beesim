@@ -1,4 +1,4 @@
-importScripts("/mvp-beesim/devprecache-manifest.1328b8b78151aff3be354d974d61f898.js", "https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
+importScripts("/mvp-beesim/devprecache-manifest.e1f8d97f46ce414871084bde3fbf8af3.js", "https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 /**
  * You should only modify this, if you know what you are doing.
