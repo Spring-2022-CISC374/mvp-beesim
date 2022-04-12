@@ -2,7 +2,10 @@
 	"name": "phaser3-parcel-template",
 	"version": "1.0.0",
 	"description": "A template project for Phaser 3 using Parceljs",
+	"homepage": "https://spring-2022-cisc374.github.io/mvp-beesim/",
 	"scripts": {
+		"predeploy": "npm run build",
+		"deploy": "gh-pages -d dist",
 		"start": "parcel src/index.html -p 8000",
 		"build": "parcel build src/index.html --out-dir dist",
 		"test": "echo \"Error: no test specified\" && exit 1"
@@ -11,14 +14,14 @@
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/ourcade/phaser3-parcel-template.git"
+		"url": "https://github.com/Spring-2022-CISC374/mvp-beesim.git"
 	},
-	"homepage": "https://github.com/ourcade/phaser3-parcel-template",
 	"devDependencies": {
 		"@babel/core": "^7.10.5",
 		"@babel/plugin-proposal-class-properties": "^7.10.4",
 		"babel-eslint": "^10.1.0",
 		"eslint": "^6.8.0",
+		"gh-pages": "^3.2.3",
 		"minimist": ">=1.2.2",
 		"parcel-plugin-clean-easy": "^1.0.2",
 		"parcel-plugin-static-files-copy": "^2.4.3",
