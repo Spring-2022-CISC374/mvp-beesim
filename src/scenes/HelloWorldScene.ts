@@ -105,7 +105,7 @@ export default class HelloWorldScene extends Phaser.Scene
     }
 
     private handleHitPlant(player: Phaser.GameObjects.GameObject, b: Phaser.GameObjects.GameObject) {
-        this.add.text(200, 200, '+1');
+        this.add.text(200, 200, 'Yay, nectar!');
         score = score + 1
         scoreText.setText('Resources: ' + score);
     }
