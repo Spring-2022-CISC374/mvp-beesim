@@ -4,10 +4,6 @@ import eventsCenter from '../classes/eventCenter';
 
 export default class UIScene extends Phaser.Scene
 {
-    private h1: Phaser.GameObjects.Sprite;
-    private h2: Phaser.GameObjects.Sprite;
-    private h3: Phaser.GameObjects.Sprite;
-
     constructor(){
         super('ui-scene')
     }
@@ -19,25 +15,9 @@ export default class UIScene extends Phaser.Scene
 
         this.add.text(x, y - 36, 'Energy');
 
+        this.createBarBackground(x + fullWidth + 30, y, fullWidth);
+
         this.createBarBackground(x, y, fullWidth);
-
-        this.createHearts(x+360, y);
-
-        /*
-        this.anims.create({
-            key: 'lose_heart',
-            frames: this.anims.generateFrameNumbers('heart', { frames: [ 0, 2 ] } ),
-            frameRate: 10,
-            repeat: 1
-        });
-
-        this.anims.create({
-            key: 'gain_heart',
-            frames: this.anims.generateFrameNumbers('heart', { frames: [ 2, 0 ] } ),
-            frameRate: 10,
-            repeat: 1
-        });
-        */
     }
 
     private createBarBackground(x: number, y: number, fullWidth: number): void {
@@ -54,8 +34,13 @@ export default class UIScene extends Phaser.Scene
     }
 
     private createHearts(x: number, y: number): void {
-        this.h1 = this.add.sprite(x, y, 'heart').setOrigin(0, 0.5).setScale(0.1);
-        this.h2 = this.add.sprite(x + 30, y, 'heart').setOrigin(0, 0.5).setScale(0.1);
-        this.h3 = this.add.sprite(x + 60, y, 'heart').setOrigin(0, 0.5).setScale(0.1);
+        const h1 = this.add.image(x, y, 'bear').setScale(0.05)
+            .setOrigin(0, 0.5);
+
+        const h2 = this.add.image(h1.x + h1.width + 15, y, 'bear').setScale(0.05)
+            .setOrigin(0, 0.5);
+
+        this.add.image(h2.x + h2.displayWidth + 15, y, 'bear').setScale(0.05)
+            .setOrigin(0, 0.5);
     }
 }
