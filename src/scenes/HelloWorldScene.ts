@@ -1,12 +1,17 @@
 import Phaser from 'phaser';
 import { beeController, generatePlayer } from '../classes/Player';
 
+var score = 0;
+var scoreText;
+var energy = 1000;
+var energyText;
+
 export default class HelloWorldScene extends Phaser.Scene
 {
     private platforms?: Phaser.Physics.Arcade.StaticGroup;
     private player?: Phaser.Physics.Arcade.Sprite;
     private enemy?: Phaser.Physics.Arcade.Sprite;
-    private flower?: Phaser.Physics.Arcade.Sprite;
+    private plant?: Phaser.Physics.Arcade.Sprite;
     private keys?: Phaser.Types.Input.Keyboard.CursorKeys;
 
     private health: number;
@@ -33,7 +38,9 @@ export default class HelloWorldScene extends Phaser.Scene
         this.load.image('ground', 'assets/platform.png');
         this.load.image('bear', 'assets/Bear.png');
         this.load.image('sky', 'assets/sky.png');
-        this.load.image('flower', 'assets/flower.png');
+        //this.load.image('flower', 'assets/flower.png');
+        this.load.image('flower', 'assets/tulip.png')
+        
 
         this.load.image('left-cap', 'assets/barHorizontal_green_left.png');
         this.load.image('middle', 'assets/barHorizontal_green_mid.png');
@@ -56,14 +63,15 @@ export default class HelloWorldScene extends Phaser.Scene
         const ground = this.platforms.create(400,580, 'ground') as Phaser.Physics.Arcade.Sprite;
         ground.setScale(2).refreshBody();
 
-
         this.player = generatePlayer(this);
 
         this.enemy = this.physics.add.sprite(500, 450,'bear')
         this.enemy.setCollideWorldBounds(true)
 
-        this.flower = this.physics.add.sprite(200, 500,'flower')
-        this.flower.setScale(0.05);
+        this.plant = this.physics.add.sprite(300, 450, 'flower')
+        this.plant.setCollideWorldBounds(true)
+        this.plant.setScale(.25)
+
 
         this.anims.create({
             key: 'left',
@@ -85,16 +93,16 @@ export default class HelloWorldScene extends Phaser.Scene
 
         this.physics.add.collider(this.player, this.platforms);
         this.physics.add.collider(this.enemy, this.platforms);
+        this.physics.add.collider(this.plant, this.platforms);
 
         this.keys = this.input.keyboard.createCursorKeys();
 
         this.physics.add.overlap(this.player, this.enemy, this.handleHitEnemy, undefined, this);
-        this.physics.add.collider(this.flower, this.platforms);
-
-
-
+        this.physics.add.collider(this.plant, this.platforms);
     
         this.scene.launch('ui-scene', { controller: this});
+
+        scoreText = this.add.text(16, 80, 'Resources: 0', { fontSize: '32px', fill: '#000' });
     }
 
     private handleHitEnemy(player: Phaser.GameObjects.GameObject, b: Phaser.GameObjects.GameObject) {
@@ -104,10 +112,17 @@ export default class HelloWorldScene extends Phaser.Scene
                 this.hearts[this.health].setFrame(2);
                 this.canTakeDamage = false;
             }
-            else 
+            // else 
                 // DIE
-                // TODO: implement timer to not die
+                // TODO: implement timer to not take damage
         }
+    }
+
+    
+    private handleHitPlant(player: Phaser.GameObjects.GameObject, b: Phaser.GameObjects.GameObject) {
+        this.add.text(100, 300, 'Yay, nectar!');
+        score = score + 1
+        scoreText.setText('Resources: ' + score);
     }
 
     private createBarBackground(x: number, y: number, fullWidth: number) {
