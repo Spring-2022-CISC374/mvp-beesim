@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { beeController, generatePlayer } from './player';
+import { beeController, generatePlayer } from '../classes/Player';
 
 export default class HelloWorldScene extends Phaser.Scene
 {
