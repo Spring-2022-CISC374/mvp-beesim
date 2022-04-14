@@ -41,7 +41,6 @@ export default class HelloWorldScene extends Phaser.Scene
     create()
     {
         const fullWidth = 300;
-        
 
         this.add.image(400,300,'sky');
         this.add.text(10, 12, 'Energy');
@@ -56,7 +55,8 @@ export default class HelloWorldScene extends Phaser.Scene
         this.enemy = this.physics.add.sprite(500, 450,'bear')
         this.enemy.setCollideWorldBounds(true)
 
-        this.flower = this.physics.add.sprite(200, 450,'flower')
+        this.flower = this.physics.add.sprite(200, 500,'flower')
+        this.flower.setScale(0.05);
 
         this.anims.create({
             key: 'left',
