@@ -17,9 +17,8 @@ export default class UIScene extends Phaser.Scene
 
         this.createBarBackground(x, y, fullWidth)
 
-
-
     }
+
         private createBarBackground(x: number, y: number, fullWidth: number) {
             const leftShadowCap = this.add.image(x, y, 'left-cap-shadow')
                 .setOrigin(0, 0.5)
