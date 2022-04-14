@@ -1,12 +1,18 @@
 import Phaser from 'phaser';
 import { beeController, generatePlayer } from './player';
 
+var score = 0;
+var scoreText;
+var energy = 1000;
+var energyText;
+
 export default class HelloWorldScene extends Phaser.Scene
 {
 
     private platforms?: Phaser.Physics.Arcade.StaticGroup;
     private player?: Phaser.Physics.Arcade.Sprite;
     private enemy?: Phaser.Physics.Arcade.Sprite;
+    private plant?: Phaser.Physics.Arcade.Sprite;
     private keys?: Phaser.Types.Input.Keyboard.CursorKeys;
 
 	constructor()
@@ -23,6 +29,7 @@ export default class HelloWorldScene extends Phaser.Scene
         this.load.image('ground', 'assets/platform.png');
         this.load.image('bear', 'assets/Bear.png');
         this.load.image('sky', 'assets/sky.png');
+        this.load.image('flower', 'assets/tulip.png')
         
 
         this.load.image('left-cap', 'assets/barHorizontal_green_left.png');
@@ -48,11 +55,15 @@ export default class HelloWorldScene extends Phaser.Scene
         const ground = this.platforms.create(400,580, 'ground') as Phaser.Physics.Arcade.Sprite;
         ground.setScale(2).refreshBody();
 
-
         this.player = generatePlayer(this);
 
         this.enemy = this.physics.add.sprite(500, 450,'bear')
         this.enemy.setCollideWorldBounds(true)
+
+        this.plant = this.physics.add.sprite(300, 450, 'flower')
+        this.plant.setCollideWorldBounds(true)
+        this.plant.setScale(.25)
+
 
         this.anims.create({
             key: 'left',
@@ -74,19 +85,29 @@ export default class HelloWorldScene extends Phaser.Scene
 
         this.physics.add.collider(this.player, this.platforms);
         this.physics.add.collider(this.enemy, this.platforms);
+        this.physics.add.collider(this.plant, this.platforms);
 
         this.keys = this.input.keyboard.createCursorKeys();
 
         this.physics.add.overlap(this.player, this.enemy, this.handleHitEnemy, undefined, this);
+        this.physics.add.overlap(this.player, this.plant, this.handleHitPlant, undefined, this);
     
-        this.scene.launch('ui-scene', { controller: this});
+        this.scene.launch('ui-scene', { controller: this });
 
-
-        
+        scoreText = this.add.text(16, 80, 'Resources: 0', { fontSize: '32px', fill: '#000' });
+        energyText = this.add.text(15, 35, 'Energy: 1000', { fontSize: '32px', fill: '#000' });
     }
 
     private handleHitEnemy(player: Phaser.GameObjects.GameObject, b: Phaser.GameObjects.GameObject) {
         this.add.text(300, 200, 'Ouch');
+        energy = energy - 1
+        energyText.setText('Energy: ' + energy);
+    }
+
+    private handleHitPlant(player: Phaser.GameObjects.GameObject, b: Phaser.GameObjects.GameObject) {
+        this.add.text(200, 200, '+1');
+        score = score + 1
+        scoreText.setText('Resources: ' + score);
     }
 
     private createBarBackground(x: number, y: number, fullWidth: number) {
