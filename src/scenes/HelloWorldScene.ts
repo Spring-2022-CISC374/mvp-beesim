@@ -7,6 +7,7 @@ export default class HelloWorldScene extends Phaser.Scene
     private platforms?: Phaser.Physics.Arcade.StaticGroup;
     private player?: Phaser.Physics.Arcade.Sprite;
     private enemy?: Phaser.Physics.Arcade.Sprite;
+    private flower?: Phaser.Physics.Arcade.Sprite;
     private keys?: Phaser.Types.Input.Keyboard.CursorKeys;
 
 	constructor()
@@ -23,6 +24,7 @@ export default class HelloWorldScene extends Phaser.Scene
         this.load.image('ground', 'assets/platform.png');
         this.load.image('bear', 'assets/Bear.png');
         this.load.image('sky', 'assets/sky.png');
+        this.load.image('flower', 'assets/flower.png');
         
 
         this.load.image('left-cap', 'assets/barHorizontal_green_left.png');
@@ -54,6 +56,8 @@ export default class HelloWorldScene extends Phaser.Scene
         this.enemy = this.physics.add.sprite(500, 450,'bear')
         this.enemy.setCollideWorldBounds(true)
 
+        this.flower = this.physics.add.sprite(200, 450,'flower')
+
         this.anims.create({
             key: 'left',
             frames: this.anims.generateFrameNumbers('bee', { 
@@ -78,6 +82,10 @@ export default class HelloWorldScene extends Phaser.Scene
         this.keys = this.input.keyboard.createCursorKeys();
 
         this.physics.add.overlap(this.player, this.enemy, this.handleHitEnemy, undefined, this);
+        this.physics.add.collider(this.flower, this.platforms);
+
+
+
     
         this.scene.launch('ui-scene', { controller: this});
 
