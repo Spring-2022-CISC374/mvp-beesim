@@ -28,7 +28,6 @@ export default class HelloWorldScene extends Phaser.Scene
         this.load.image('bear', 'assets/Bear.png');
         this.load.image('sky', 'assets/sky.png');
         this.load.image('flower', 'assets/flower.png');
-        
 
         this.load.image('left-cap', 'assets/barHorizontal_green_left.png');
         this.load.image('middle', 'assets/barHorizontal_green_mid.png');
