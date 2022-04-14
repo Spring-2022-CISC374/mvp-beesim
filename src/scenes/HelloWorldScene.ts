@@ -20,6 +20,9 @@ export default class HelloWorldScene extends Phaser.Scene
         this.load.spritesheet('bee', 'assets/bee.png', {
             frameWidth: 512, frameHeight: 512
         })
+        this.load.spritesheet('heart', 'assets/bee.png', {
+            frameWidth: 300, frameHeight: 300
+        })
             
         this.load.image('ground', 'assets/platform.png');
         this.load.image('bear', 'assets/Bear.png');
