@@ -13,4 +13,4 @@ var t,e=require("process"),i=arguments[3];!function(e,i){"object"==typeof export
 },{"phaser":"E66h","../classes/Player":"AS6x"}],"ZCfc":[function(require,module,exports) {
 "use strict";Object.defineProperty(exports,"__esModule",{value:!0}),exports.default=void 0;var e=r(require("phaser")),t=r(require("./scenes/HelloWorldScene"));function r(e){return e&&e.__esModule?e:{default:e}}var a={type:e.default.AUTO,width:800,height:600,physics:{default:"arcade",arcade:{gravity:{y:200}}},scene:[t.default]},d=new e.default.Game(a);exports.default=d;
 },{"phaser":"E66h","./scenes/HelloWorldScene":"Ymv7"}]},{},["ZCfc"], null)
-//# sourceMappingURL=/main.30c544a6.js.map
+//# sourceMappingURL=https://spring-2022-cisc374.github.io/mvp-beesim/main.30c544a6.js.map
