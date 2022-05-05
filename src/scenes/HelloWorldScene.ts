@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { beeController, generatePlayer } from './player';
+import { beeController, generatePlayer } from '../classes/Player';
 
 var score = 0;
 var scoreText;
@@ -8,16 +8,22 @@ var energyText;
 
 export default class HelloWorldScene extends Phaser.Scene
 {
-
     private platforms?: Phaser.Physics.Arcade.StaticGroup;
     private player?: Phaser.Physics.Arcade.Sprite;
     private enemy?: Phaser.Physics.Arcade.Sprite;
     private plant?: Phaser.Physics.Arcade.Sprite;
     private keys?: Phaser.Types.Input.Keyboard.CursorKeys;
 
+    private health: number;
+    private hearts: Phaser.GameObjects.Sprite[];
+    private canTakeDamage: boolean;
+
 	constructor()
 	{
 		super('hello-world');
+        this.health = 3;
+        this.hearts = []
+        this.canTakeDamage = true;
 	}
 
 	preload()
@@ -25,10 +31,14 @@ export default class HelloWorldScene extends Phaser.Scene
         this.load.spritesheet('bee', 'assets/bee.png', {
             frameWidth: 512, frameHeight: 512
         })
+        this.load.spritesheet('heart', 'assets/hearts.png', {
+            frameWidth: 300, frameHeight: 300
+        })
             
         this.load.image('ground', 'assets/platform.png');
         this.load.image('bear', 'assets/Bear.png');
         this.load.image('sky', 'assets/sky.png');
+        //this.load.image('flower', 'assets/flower.png');
         this.load.image('flower', 'assets/tulip.png')
         
 
@@ -39,18 +49,16 @@ export default class HelloWorldScene extends Phaser.Scene
         this.load.image('left-cap-shadow', 'assets/barHorizontal_shadow_left.png');
         this.load.image('middle-shadow', 'assets/barHorizontal_shadow_mid.png');
         this.load.image('right-shadow', 'assets/barHorizontal_shadow_right.png');
-
-
     }
 
     create()
     {
         const fullWidth = 300;
-        
 
         this.add.image(400,300,'sky');
         this.add.text(10, 12, 'Energy');
         this.createBarBackground(10, 50, fullWidth);
+        this.hearts = this.createHearts(10 + fullWidth + 30, 50);
         this.platforms = this.physics.add.staticGroup();
         const ground = this.platforms.create(400,580, 'ground') as Phaser.Physics.Arcade.Sprite;
         ground.setScale(2).refreshBody();
@@ -90,20 +98,27 @@ export default class HelloWorldScene extends Phaser.Scene
         this.keys = this.input.keyboard.createCursorKeys();
 
         this.physics.add.overlap(this.player, this.enemy, this.handleHitEnemy, undefined, this);
-        this.physics.add.overlap(this.player, this.plant, this.handleHitPlant, undefined, this);
+        this.physics.add.collider(this.plant, this.platforms);
     
-        this.scene.launch('ui-scene', { controller: this });
+        this.scene.launch('ui-scene', { controller: this});
 
         scoreText = this.add.text(16, 80, 'Resources: 0', { fontSize: '32px', fill: '#000' });
-        energyText = this.add.text(15, 35, 'Energy: 1000', { fontSize: '32px', fill: '#000' });
     }
 
     private handleHitEnemy(player: Phaser.GameObjects.GameObject, b: Phaser.GameObjects.GameObject) {
-        this.add.text(300, 200, 'Ouch');
-        energy = energy - 1
-        energyText.setText('Energy: ' + energy);
+        if (this.canTakeDamage) {
+            if (this.health > 1) {
+                this.health--;
+                this.hearts[this.health].setFrame(2);
+                this.canTakeDamage = false;
+            }
+            // else 
+                // DIE
+                // TODO: implement timer to not take damage
+        }
     }
 
+    
     private handleHitPlant(player: Phaser.GameObjects.GameObject, b: Phaser.GameObjects.GameObject) {
         this.add.text(100, 300, 'Yay, nectar!');
         score = score + 1
@@ -120,6 +135,18 @@ export default class HelloWorldScene extends Phaser.Scene
 
         this.add.image(middleShadowCap.x + middleShadowCap.displayWidth, y, 'right-cap')
             .setOrigin(0, 0.5);
+    }
+
+    private createHearts(x: number, y: number): Phaser.GameObjects.Sprite[] {
+        let h1: Phaser.GameObjects.Sprite = this.add.sprite(x, y, 'heart').setScale(0.1)
+            .setOrigin(0, 0.5);
+
+        let h2: Phaser.GameObjects.Sprite = this.add.sprite(h1.x + h1.displayWidth + 15, y, 'heart', 0).setScale(0.1)
+            .setOrigin(0, 0.5);
+
+        let h3: Phaser.GameObjects.Sprite = this.add.sprite(h2.x + h2.displayWidth + 15, y, 'heart', 0).setScale(0.1)
+            .setOrigin(0, 0.5);
+        return [h1,h2,h3];
     }
     
     update() {
