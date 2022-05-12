@@ -105,17 +105,28 @@ export default class HelloWorldScene extends Phaser.Scene
         scoreText = this.add.text(16, 80, 'Resources: 0', { fontSize: '32px', fill: '#000' });
     }
 
-    private handleHitEnemy(player: Phaser.GameObjects.GameObject, b: Phaser.GameObjects.GameObject) {
+    private handleHitEnemy(p: Phaser.GameObjects.GameObject, b: Phaser.GameObjects.GameObject) {
         if (this.canTakeDamage) {
-            if (this.health > 1) {
+            if (this.health > 0) {
                 this.health--;
                 this.hearts[this.health].setFrame(2);
                 this.canTakeDamage = false;
+                this.knockback(this.player, this.enemy);
+                this.canTakeDamage = true;
             }
             // else 
                 // DIE
                 // TODO: implement timer to not take damage
         }
+    }
+
+    private knockback(player?: Phaser.Physics.Arcade.Sprite, b?: Phaser.Physics.Arcade.Sprite) {
+        const xdiff = player.body.position.x - b.body.position.x;
+        const ydiff = player.body.position.y - b.body.position.y;
+        const magnitude = Math.sqrt(xdiff * xdiff + ydiff * ydiff);
+        const normalX = xdiff / magnitude;
+        const normalY = ydiff / magnitude;
+        player?.setVelocity(normalX * 500, normalY * 500);
     }
 
     

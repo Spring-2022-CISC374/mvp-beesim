@@ -18,22 +18,19 @@ export function beeController(keys?: Phaser.Types.Input.Keyboard.CursorKeys, pla
         return;
     }
     if(keys.left?.isDown) {
-        player.setVelocityX(-160);
+        player.setAccelerationX(-500);
         player.anims.play('left', true);
     } 
     else if (keys.right?.isDown) {
-        player.setVelocityX(160);
+        player.setAccelerationX(500);
         player.anims.play('right', true);
-    }
-    else {
-        player.setVelocityX(0);
     }
 
     if (keys.up?.isDown) {
         if (player.body.touching.down) {
             player?.setVelocityY(-200);
         } else {
-            player?.setAccelerationY(-800);
+            player?.setAccelerationY(-1000);
         }
     }
     else {
