@@ -1,7 +1,5 @@
 import { World } from 'matter';
-import Phaser from 'phaser';
-import Flower from '~/classes/Flower';
-import FlowerController from '~/classes/Flower';
+import Phaser, { Physics } from 'phaser';
 var score = 0;
 var scoreText;
 var energy = 100;
@@ -22,6 +20,8 @@ export default class Game extends Phaser.Scene
     private hearts: Phaser.GameObjects.Sprite[];
     private canTakeDamage: boolean;
     private isGrounded: boolean;
+    private flowers;
+    private pickups;
 
 	constructor()
 	{
@@ -81,11 +81,9 @@ export default class Game extends Phaser.Scene
         ground.setDepth(49);
 
         const flowers = map.createLayer('flowers', tileset)
-        flowers.tilemap.forEachTile(tile => this.indexArr.push(tile.index));
-        this.physics.add.overlap(this.player!, flowers , () => {
-
-        });
-
+        var layerGroup = this.add.group();
+        layerGroup.add(flowers);
+        layerGroup.setDepth(51);
 
         const objectsLayer = map.getObjectLayer('objects')
         objectsLayer.objects.forEach(objData => {
@@ -96,23 +94,26 @@ export default class Game extends Phaser.Scene
                     this.player = this.generatePlayer( x!, y!);
                     this.player.setDepth(50);
                 }
+                case 'pickup': {
+                    this.pickups 
+                }
             }
+            this.physics.add.overlap(this.player!, layerGroup, collectFlower, undefined, this);
         })
 
-        this.physics.add.overlap(this.player!, flowers, () )
+        function collectFlower(player, flower) {
+            console.log('flower collected');
+            score++;
+        }
+
 
 
 
         // END OF MAPMAKING
 
         // Bee anims
-
-        this.physics.add.collider(this.player!, ground, () => {
-            if (this.player?.body.touching.up) {
-                return;
-            }
-            this.isGrounded = true;
-        })
+        
+        this.physics.add.collider(this.player!, ground, this.regroundPlayer, undefined, this);
 
         this.cameras.main.startFollow(this.player!);
         this.cameras.main.setZoom(3.5);
@@ -128,16 +129,13 @@ export default class Game extends Phaser.Scene
         cloudsWhiteSmall = this.add.tileSprite(640, 200, 1280, 400, "clouds-white-small");
     
         this.scene.launch('ui-scene', { controller: this});
-
-        scoreText = this.add.text(16, 80, 'Resources: 0', { fontSize: '32px', fill: '#000' });
-        energyText = this.add.text(15, 35, 'Energy: 100', { fontSize: '32px', fill: '#000' });
     }
 
-    private collectFlower(flower: Tile): void {
-        if (flower.getHasNectar()) {
-            this.points++;
-            flower.deactivate();
+    private regroundPlayer(player, ground) {
+        if (player?.body.touching.up) {
+            return;
         }
+        this.isGrounded = true;
     }
 
 
@@ -250,8 +248,8 @@ export default class Game extends Phaser.Scene
     }
 
     private knockback(player?: Phaser.Physics.Arcade.Sprite, b?: Phaser.Physics.Arcade.Sprite) {
-        const xdiff = player.body.position.x - b.body.position.x;
-        const ydiff = player.body.position.y - b.body.position.y;
+        const xdiff = player!.body.position.x - b!.body.position.x;
+        const ydiff = player!.body.position.y - b!.body.position.y;
         const magnitude = Math.sqrt(xdiff * xdiff + ydiff * ydiff);
         const normalX = xdiff / magnitude;
         const normalY = ydiff / magnitude;
@@ -282,13 +280,16 @@ export default class Game extends Phaser.Scene
     private createHearts(x: number, y: number): Phaser.GameObjects.Sprite[] {
         let h1: Phaser.GameObjects.Sprite = this.add.sprite(x, y, 'heart').setScale(0.1)
             .setOrigin(0, 0.5);
+            h1.setScrollFactor(0);
 
         let h2: Phaser.GameObjects.Sprite = this.add.sprite(h1.x + h1.displayWidth + 15, y, 'heart', 0).setScale(0.1)
             .setOrigin(0, 0.5);
+            h1.setScrollFactor(0);
 
         let h3: Phaser.GameObjects.Sprite = this.add.sprite(h2.x + h2.displayWidth + 15, y, 'heart', 0).setScale(0.1)
             .setOrigin(0, 0.5);
-        return [h1,h2,h3];
+            h3.setScrollFactor(0);
+            return [h1,h2,h3];
     }
     
     update() {
