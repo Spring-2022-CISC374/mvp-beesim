@@ -1,6 +1,4 @@
 import Phaser from 'phaser';
-import { beeController, generatePlayer } from '../classes/Player';
-
 var score = 0;
 var scoreText;
 var energy = 100;
@@ -18,6 +16,7 @@ export default class HelloWorldScene extends Phaser.Scene
     private health: number;
     private hearts: Phaser.GameObjects.Sprite[];
     private canTakeDamage: boolean;
+    private isGrounded: boolean;
 
 	constructor()
 	{
@@ -25,12 +24,17 @@ export default class HelloWorldScene extends Phaser.Scene
         this.health = 3;
         this.hearts = []
         this.canTakeDamage = true;
+        this.isGrounded = true;
 	}
+
+    init() {
+        this.keys = this.input.keyboard.createCursorKeys();
+    }
 
 	preload()
     {
-        this.load.spritesheet('bee', 'assets/bee.png', {
-            frameWidth: 512, frameHeight: 512
+        this.load.spritesheet('bee', 'assets/cropped_bees.png', {
+            frameWidth: 130, frameHeight: 118
         })
         this.load.spritesheet('heart', 'assets/hearts.png', {
             frameWidth: 300, frameHeight: 300
@@ -61,42 +65,39 @@ export default class HelloWorldScene extends Phaser.Scene
 
     create()
     {
+        this.createPlayerAnims();
         // START OF MAPMAKING
         const map = this.make.tilemap({ key: 'tilemap'});
         const tileset = map.addTilesetImage('grass-world', 'tiles');
 
         const ground = map.createLayer('ground', tileset)
-
-        this.cameras.main.scrollY = 0;
         ground.setCollisionByProperty({collides: true})
 
+        const flowers = map.createLayer('flowers', tileset)
+
+        const objectsLayer = map.getObjectLayer('objects')
+        objectsLayer.objects.forEach(objData => {
+            const { x, y, name } = objData
+
+            switch (name) {
+                case 'player-spawn': {
+                    this.player = this.generatePlayer(this, x!, y!);
+                }
+            }
+        })
 
 
 
         // END OF MAPMAKING
 
         // Bee anims
-        this.anims.create({
-            key: 'left',
-            frames: this.anims.generateFrameNumbers('bee', { 
-                start: 6, end: 11
-            }),
-            frameRate: 10,
-            repeat: 1
+
+        this.physics.add.collider(this.player!, ground, () => {
+            this.isGrounded = true;
         })
 
-        this.anims.create({
-            key: 'right',
-            frames: this.anims.generateFrameNumbers('bee', {
-                start: 0, end: 5
-            }),
-            frameRate: 10,
-            repeat: 1
-        })
-
-        this.player = generatePlayer(this);
-
-        this.physics.add.collider(this.player, ground)
+        this.cameras.main.startFollow(this.player!);
+        this.cameras.main.setZoom(3.5);
 
         /*
 
@@ -147,7 +148,7 @@ export default class HelloWorldScene extends Phaser.Scene
         this.physics.add.collider(this.enemy, this.platforms);
         this.physics.add.collider(this.plant, this.platforms);
 
-        this.keys = this.input.keyboard.createCursorKeys();
+        
 
         this.physics.add.overlap(this.player, this.enemy, this.handleHitEnemy, undefined, this);
         this.physics.add.collider(this.plant, this.platforms);
@@ -157,6 +158,97 @@ export default class HelloWorldScene extends Phaser.Scene
         scoreText = this.add.text(16, 80, 'Resources: 0', { fontSize: '32px', fill: '#000' });
         energyText = this.add.text(15, 35, 'Energy: 100', { fontSize: '32px', fill: '#000' });
         */
+    }
+
+
+    // PLAYER FUNCTIONS
+    private generatePlayer(scene: Phaser.Scene, x: number, y: number): Phaser.Physics.Arcade.Sprite {
+        let player: Phaser.Physics.Arcade.Sprite =  scene.physics.add.sprite( x, y, 'bee');
+        player.setBounce(0.0);
+        player.setGravityY(250);
+        player.setScale(0.2);
+        player.setCollideWorldBounds(true)
+        player.setMaxVelocity(250);
+        player.play("player-idle");
+        return player;
+    }
+
+    private createPlayerAnims() {
+        this.anims.create({
+            key: "player-idle",
+            frames: [{ key: "bee", frame: 3}]
+        })
+
+        this.anims.create({
+            key: 'player-walking',
+            frames: this.anims.generateFrameNumbers('bee', { 
+                frames:  [1,2,3,2,1]
+            }),
+            frameRate: 10,
+            repeat: 1
+        })
+
+        this.anims.create({
+            key: 'player-flying',
+            frames: this.anims.generateFrameNumbers('bee', {
+                start: 0, end: 7
+            }),
+            frameRate: 10,
+            repeat: 1
+        })
+    }
+    
+    /*
+    * Controls the bee
+    */
+    private beeController(keys?: Phaser.Types.Input.Keyboard.CursorKeys, player?: Phaser.Physics.Arcade.Sprite): void {
+        if(!keys || !player) {
+            return;
+        }
+        if (this.isGrounded) {
+            
+            if(keys.left?.isDown) {
+                player.flipX = false;
+                player.setVelocityX(-100);
+                player.anims.play('player-walking', true);
+            } else if (keys.right?.isDown) {
+                player.flipX = true;
+                player.setVelocityX(100);
+                player.anims.play('player-walking', true);
+            } else {
+                player.setVelocityX(0);
+                player.anims.play('player-idle')
+            } 
+            
+            if (keys.up?.isDown) {
+                this.isGrounded = false;
+                player.setVelocityY(-100);
+            }
+
+        } else {
+            if(keys.left?.isDown) {
+                player.flipX = false;
+                player.setAccelerationX(-300);
+                player.anims.play('player-flying', true);
+            } 
+            else if (keys.right?.isDown) {
+                player.flipX = true;
+                player.setAccelerationX(300);
+                player.anims.play('player-flying', true);
+            } else {
+                player.setAccelerationX(0);
+                player.anims.play('player-flying', true);
+            }
+            
+            if (keys.up?.isDown) {
+                this.isGrounded = false;
+                player.setAccelerationY(-500);
+            }  else {
+                player.setAccelerationY(0);
+            }
+        }
+    
+        
     }
 
     private handleHitEnemy(p: Phaser.GameObjects.GameObject, b: Phaser.GameObjects.GameObject) {
@@ -217,7 +309,7 @@ export default class HelloWorldScene extends Phaser.Scene
     }
     
     update() {
-        beeController(this.keys, this.player);
+        this.beeController(this.keys, this.player);
 
         //cloudsWhite.tilePositionX += 0.5;
         //cloudsWhiteSmall.tilePositionX += 0.25;
