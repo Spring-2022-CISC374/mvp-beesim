@@ -31,8 +31,7 @@ export default class Game extends Phaser.Scene
         this.hearts = []
         this.canTakeDamage = true;
         this.isGrounded = true;
-        this.points = 0;
-        
+        this.points = 0;        
 	}
 
     init() {
@@ -81,11 +80,13 @@ export default class Game extends Phaser.Scene
         ground.setDepth(49);
 
         const flowers = map.createLayer('flowers', tileset)
-        var layerGroup = this.add.group();
-        layerGroup.add(flowers);
-        layerGroup.setDepth(51);
+        flowers.setDepth(51);
 
         const objectsLayer = map.getObjectLayer('objects')
+        
+        var pickupGroup = this.add.group();
+        var pickupHolder;
+
         objectsLayer.objects.forEach(objData => {
             const { x, y, name } = objData
 
@@ -95,13 +96,14 @@ export default class Game extends Phaser.Scene
                     this.player.setDepth(50);
                 }
                 case 'pickup': {
-                    this.pickups 
+                    pickupHolder = this.add.sprite(x!, y!, 'pickup')
+                    pickupGroup.add(pickupHolder)
                 }
             }
-            this.physics.add.overlap(this.player!, layerGroup, collectFlower, undefined, this);
+            this.physics.add.overlap(this.player!, pickupGroup, collectFlower, undefined, this);
         })
 
-        function collectFlower(player, flower) {
+        function collectFlower(player, pickup) {
             console.log('flower collected');
             score++;
         }
@@ -138,6 +140,11 @@ export default class Game extends Phaser.Scene
         this.isGrounded = true;
     }
 
+    
+    private collectFlower(player, pickup) {
+        console.log('flower collected');
+        score++;
+    }
 
     // PLAYER FUNCTIONS
     private generatePlayer(x: number, y: number): Phaser.Physics.Arcade.Sprite {
