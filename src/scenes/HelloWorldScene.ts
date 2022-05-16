@@ -25,7 +25,8 @@ export default class HelloWorldScene extends Phaser.Scene
         this.health = 3;
         this.hearts = []
         this.canTakeDamage = true;
-	}
+    }
+
 
 	preload()
     {
@@ -124,6 +125,7 @@ export default class HelloWorldScene extends Phaser.Scene
         this.keys = this.input.keyboard.createCursorKeys();
 
         this.physics.add.overlap(this.player, this.enemy, this.handleHitEnemy, undefined, this);
+        this.physics.add.overlap(this.player, this.enemy, this.handleHitPlant, undefined, this);
         this.physics.add.collider(this.plant, this.platforms);
     
         this.scene.launch('ui-scene', { controller: this});
@@ -156,13 +158,12 @@ export default class HelloWorldScene extends Phaser.Scene
         player?.setVelocity(normalX * 500, normalY * 500);
     }
 
-    
     private handleHitPlant(player: Phaser.GameObjects.GameObject, b: Phaser.GameObjects.GameObject) {
         this.add.text(100, 300, 'Yay, nectar!');
         for (let i = 0; i < 20; i++) {
             score = score + 1;
         scoreText.setText('Resources: ' + score);
-        }
+        }   
     }
 
     private createBarBackground(x: number, y: number, fullWidth: number) {
@@ -194,6 +195,10 @@ export default class HelloWorldScene extends Phaser.Scene
 
         cloudsWhite.tilePositionX += 0.5;
         cloudsWhiteSmall.tilePositionX += 0.25;
+
+        //waits 3 seconds until it gives you nectar
+        //i think
+        setTimeout(this.handleHitPlant, 3000);
 
         //this.plant.tilePositionX += 1;
         //this.platforms.tilePositionX += 0.5;
