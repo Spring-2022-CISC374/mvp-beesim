@@ -103,7 +103,7 @@ export default class Game extends Phaser.Scene
         for (let y = 0; y < 25; y++) {
             for (let x = 0; x < 100; x++) {
                 if (array[y*100 + x] === 1) {
-                    this.flowerGroup.add(this.physics.add.sprite(x * 21, y * 21, 'flower'))
+                    this.flowerGroup.add(this.physics.add.sprite(x * 21, y * 21 + 10, 'flower').setDepth(49))
                     
                     //tmpArr.push(this.physics.add.sprite(x, y, 'flower-tile'))
                     //this.physics.add.overlap(this.player!, tmpArr[count], this.handleHitPlant, undefined, this);
@@ -162,14 +162,12 @@ export default class Game extends Phaser.Scene
         this.physics.add.collider(this.player!, ground, this.regroundPlayer, undefined, this);
 
         this.cameras.main.startFollow(this.player!);
-        this.cameras.main.setZoom(3.5);
+        this.cameras.main.setZoom(5);
 
         const fullWidth = 2100;
 
         const sky = this.add.image(width*0.5,height*0.5,'sky').setDepth(0);
-        this.add.text(10, 12, 'Energy');
-        this.createBarBackground(10, 50, fullWidth);
-        this.hearts = this.createHearts(10 + fullWidth + 30, 50);
+        this.add.text(10, 12, 'Energy');        this.hearts = this.createHearts(10 + fullWidth + 30, 50);
 
         cloudsWhite = this.add.tileSprite(640, 200, 1280, 400, "clouds-white");
         cloudsWhiteSmall = this.add.tileSprite(640, 200, 1280, 400, "clouds-white-small");
@@ -318,14 +316,14 @@ export default class Game extends Phaser.Scene
 
     private createBarBackground(x: number, y: number, fullWidth: number) {
         const leftShadowCap = this.add.image(x, y, 'left-cap')
-            .setOrigin(0, 0.5);
+            .setOrigin(0, 0.5).setScale(.2);
 
         const middleShadowCap = this.add.image(leftShadowCap.x + leftShadowCap.width, y, 'middle')
-            .setOrigin(0, 0.5);
+            .setOrigin(0, 0.5).setScale(.2);
             middleShadowCap.displayWidth = fullWidth;
 
         this.add.image(middleShadowCap.x + middleShadowCap.displayWidth, y, 'right-cap')
-            .setOrigin(0, 0.5);
+            .setOrigin(0, 0.5).setScale(.2);
     }
 
     private createHearts(x: number, y: number): Phaser.GameObjects.Sprite[] {
