@@ -92,14 +92,19 @@ export default class Game extends Phaser.Scene
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-    function findcoords(array: number[]): [ {x:number, y:number} ] {
+    findcoords(array: number[]): Phaser.Physics.Arcade.Sprite[] {
+        let tmpArr: Phaser.Physics.Arcade.Sprite[] = [];
+        let count = 0;
         for (let y = 0; y < 25; y++) {
             for (let x = 0; x < 100; x++) {
                 if (array[y*100 + x] === 1) {
-                    Physics.add.sprite(x, y, 'tulip')
+                    this.physics.add.overlap(this.player!, tmpArr[count], this.handleHitPlant, undefined, this);
+                    tmpArr.push(this.physics.add.sprite(x, y, 'flower-tile'))
+                    count++;
                 }
             }
         }
+        return tmpArr;
     }
 
     create()
@@ -115,18 +120,9 @@ export default class Game extends Phaser.Scene
         ground.setCollisionByProperty({collides: true})
         ground.setDepth(49);
 
-        const flowers = map.createLayer('flowers', tileset)
-        console.log(flowers.data.getAll())
-
         const objectsLayer = map.getObjectLayer('objects')
         
-        var pickupGroup = this.add.group();
-        var pickupHolder;
-
-        this.plant = this.physics.add.sprite(, , 'flower')
-        this.physics.add.overlap(this.player, this.plant!, this.handleHitPlant, undefined, this);
-
-
+        //var pickupGroup = this.add.group();
 
         objectsLayer.objects.forEach(objData => {
             const { x, y, name } = objData
@@ -137,7 +133,7 @@ export default class Game extends Phaser.Scene
                     this.player.setDepth(50);
                 }
             }
-            this.physics.add.overlap(this.player!, pickupGroup, collectFlower, undefined, this);
+            // this.physics.add.overlap(this.player!, pickupGroup, collectFlower, undefined, this);
         })
 
         function collectFlower(player, pickup) {
@@ -146,6 +142,10 @@ export default class Game extends Phaser.Scene
         }
 
 
+
+
+        // Here she blows
+        const plantArr: Phaser.Physics.Arcade.Sprite[] = this.findcoords(this.bigfatarr);
 
 
         // END OF MAPMAKING
