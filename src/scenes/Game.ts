@@ -169,8 +169,8 @@ export default class Game extends Phaser.Scene
         const sky = this.add.image(width*0.5,height*0.5,'sky').setDepth(0);
         this.add.text(10, 12, 'Energy');        this.hearts = this.createHearts(10 + fullWidth + 30, 50);
 
-        cloudsWhite = this.add.tileSprite(640, 200, 1280, 400, "clouds-white");
-        cloudsWhiteSmall = this.add.tileSprite(640, 200, 1280, 400, "clouds-white-small");
+        cloudsWhite = this.add.tileSprite(width * 0.5, height * 0.5, 2100, 1575, "clouds-white");
+        cloudsWhiteSmall = this.add.tileSprite(width * 0.5, height * 0.5, 2100, 1575, "clouds-white-small");
     
         this.scene.launch('ui-scene', { controller: this});
     }
@@ -345,7 +345,7 @@ export default class Game extends Phaser.Scene
         this.beeController(this.keys, this.player);
 
         cloudsWhite.tilePositionX += 0.5;
-        cloudsWhiteSmall.tilePositionX += 0.25;
+        cloudsWhiteSmall.tilePositionX += 0.2;
 
         //this.plant.tilePositionX += 1;
         //this.platforms.tilePositionX += 0.5;
