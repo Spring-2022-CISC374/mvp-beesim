@@ -52,7 +52,7 @@ export default class StateMachine
         })
     }
 
-	setState(name: string) {
+	setState(name: string): StateConfig {
         if (!this.states.has(name)) {
             console.warn('Tried to change to unkown state: ${name}');
             return;
