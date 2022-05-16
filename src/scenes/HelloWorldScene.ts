@@ -3,8 +3,9 @@ import { beeController, generatePlayer } from '../classes/Player';
 
 var score = 0;
 var scoreText;
-var energy = 1000;
+var energy = 100;
 var energyText;
+var cloudsWhite, cloudsWhiteSmall;
 
 export default class HelloWorldScene extends Phaser.Scene
 {
@@ -36,10 +37,14 @@ export default class HelloWorldScene extends Phaser.Scene
         })
             
         this.load.image('ground', 'assets/platform.png');
-        this.load.image('bear', 'assets/Bear.png');
+        this.load.image('bear', 'assets/bear.png');
         this.load.image('sky', 'assets/sky.png');
-        //this.load.image('flower', 'assets/flower.png');
-        this.load.image('flower', 'assets/tulip.png')
+
+        this.load.image('flower', 'assets/tulip.png');
+
+        this.load.image('clouds-white', 'assets/clouds-white.png');
+        this.load.image("clouds-white-small", 'assets/clouds-white-small.png');
+
         
 
         this.load.image('left-cap', 'assets/barHorizontal_green_left.png');
@@ -55,13 +60,32 @@ export default class HelloWorldScene extends Phaser.Scene
     {
         const fullWidth = 300;
 
+        const createAligned = (scene, totalWidth, texture, scrollFactor) => {
+            const w = scene.textures.get(texture).getSourceImage().width
+            const count = Math.ceil(totalWidth / w) * scrollFactor
+        
+            let x = 0
+            for (let i = 0; i < count; ++i)
+            {
+                const m = scene.add.image(x, scene.scale.height, texture)
+                    .setOrigin(0, 1)
+                    .setScrollFactor(scrollFactor)
+        
+                x += m.width
+            }
+        }
+
         this.add.image(400,300,'sky');
         this.add.text(10, 12, 'Energy');
         this.createBarBackground(10, 50, fullWidth);
         this.hearts = this.createHearts(10 + fullWidth + 30, 50);
         this.platforms = this.physics.add.staticGroup();
-        const ground = this.platforms.create(400,580, 'ground') as Phaser.Physics.Arcade.Sprite;
+        const ground = this.platforms.create(400,600, 'ground') as Phaser.Physics.Arcade.Sprite;
         ground.setScale(2).refreshBody();
+        
+        ground.setScrollFactor(0.5);
+
+        createAligned(this, 800, 'ground', 0.5);
 
         this.player = generatePlayer(this);
 
@@ -72,6 +96,8 @@ export default class HelloWorldScene extends Phaser.Scene
         this.plant.setCollideWorldBounds(true)
         this.plant.setScale(.25)
 
+        cloudsWhite = this.add.tileSprite(640, 200, 1280, 400, "clouds-white");
+        cloudsWhiteSmall = this.add.tileSprite(640, 200, 1280, 400, "clouds-white-small");
 
         this.anims.create({
             key: 'left',
@@ -103,26 +129,40 @@ export default class HelloWorldScene extends Phaser.Scene
         this.scene.launch('ui-scene', { controller: this});
 
         scoreText = this.add.text(16, 80, 'Resources: 0', { fontSize: '32px', fill: '#000' });
+        energyText = this.add.text(15, 35, 'Energy: 100', { fontSize: '32px', fill: '#000' });
     }
 
-    private handleHitEnemy(player: Phaser.GameObjects.GameObject, b: Phaser.GameObjects.GameObject) {
+    private handleHitEnemy(p: Phaser.GameObjects.GameObject, b: Phaser.GameObjects.GameObject) {
         if (this.canTakeDamage) {
-            if (this.health > 1) {
+            if (this.health > 0) {
                 this.health--;
                 this.hearts[this.health].setFrame(2);
                 this.canTakeDamage = false;
+                this.knockback(this.player, this.enemy);
+                this.canTakeDamage = true;
             }
-            // else 
-                // DIE
-                // TODO: implement timer to not take damage
+            else {
+                this.scene.start("GameOverScene");
+            }
         }
+    }
+
+    private knockback(player?: Phaser.Physics.Arcade.Sprite, b?: Phaser.Physics.Arcade.Sprite) {
+        const xdiff = player.body.position.x - b.body.position.x;
+        const ydiff = player.body.position.y - b.body.position.y;
+        const magnitude = Math.sqrt(xdiff * xdiff + ydiff * ydiff);
+        const normalX = xdiff / magnitude;
+        const normalY = ydiff / magnitude;
+        player?.setVelocity(normalX * 500, normalY * 500);
     }
 
     
     private handleHitPlant(player: Phaser.GameObjects.GameObject, b: Phaser.GameObjects.GameObject) {
         this.add.text(100, 300, 'Yay, nectar!');
-        score = score + 1
+        for (let i = 0; i < 20; i++) {
+            score = score + 1;
         scoreText.setText('Resources: ' + score);
+        }
     }
 
     private createBarBackground(x: number, y: number, fullWidth: number) {
@@ -151,5 +191,11 @@ export default class HelloWorldScene extends Phaser.Scene
     
     update() {
         beeController(this.keys, this.player);
+
+        cloudsWhite.tilePositionX += 0.5;
+        cloudsWhiteSmall.tilePositionX += 0.25;
+
+        //this.plant.tilePositionX += 1;
+        //this.platforms.tilePositionX += 0.5;
     }
 }
