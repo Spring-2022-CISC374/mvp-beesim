@@ -24,6 +24,8 @@ export function beeController(keys?: Phaser.Types.Input.Keyboard.CursorKeys, pla
     else if (keys.right?.isDown) {
         player.setAccelerationX(500);
         player.anims.play('right', true);
+    } else {
+        player.setAccelerationX(0);
     }
 
     if (keys.up?.isDown) {
