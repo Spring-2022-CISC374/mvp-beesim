@@ -72,6 +72,7 @@ export default class HelloWorldScene extends Phaser.Scene
 
 
 
+
         // END OF MAPMAKING
 
         // Bee anims
@@ -93,7 +94,9 @@ export default class HelloWorldScene extends Phaser.Scene
             repeat: 1
         })
 
+        this.player = generatePlayer(this);
 
+        this.physics.add.collider(this.player, ground)
 
         /*
 

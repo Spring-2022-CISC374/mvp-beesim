@@ -1,10 +1,10 @@
 import Phaser from 'phaser';
 
 export function generatePlayer(scene: Phaser.Scene): Phaser.Physics.Arcade.Sprite {
-    let player: Phaser.Physics.Arcade.Sprite =  scene.physics.add.sprite(100,450,'bee');
+    let player: Phaser.Physics.Arcade.Sprite =  scene.physics.add.sprite(100,300,'bee');
     player.setBounce(0.0);
     player.setGravityY(250);
-    player.setScale(0.20);
+    player.setScale(0.05);
     player.setCollideWorldBounds(true)
     player.setMaxVelocity(250);
     return player;
