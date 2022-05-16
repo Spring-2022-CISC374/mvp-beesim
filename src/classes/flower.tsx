@@ -1,4 +1,4 @@
-export default class FlowerController {
+export default class Flower {
     private hasNectar: boolean;
 
     constructor() {
