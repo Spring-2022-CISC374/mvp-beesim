@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import FlowerController from '~/classes/Flower';
 var score = 0;
 var scoreText;
 var energy = 100;
@@ -13,6 +14,7 @@ export default class HelloWorldScene extends Phaser.Scene
     private plant?: Phaser.Physics.Arcade.Sprite;
     private keys?: Phaser.Types.Input.Keyboard.CursorKeys;
 
+    private points: number;
     private health: number;
     private hearts: Phaser.GameObjects.Sprite[];
     private canTakeDamage: boolean;
@@ -43,15 +45,11 @@ export default class HelloWorldScene extends Phaser.Scene
         this.load.image('tiles', 'assets/world_tiles.png', );
         this.load.tilemapTiledJSON('tilemap', 'assets/map.json');
             
-        this.load.image('ground', 'assets/platform.png');
         this.load.image('bear', 'assets/bear.png');
         this.load.image('sky', 'assets/sky.png');
 
-        this.load.image('flower', 'assets/tulip.png');
-
         this.load.image('clouds-white', 'assets/clouds-white.png');
         this.load.image("clouds-white-small", 'assets/clouds-white-small.png');
-
         
 
         this.load.image('left-cap', 'assets/barHorizontal_green_left.png');
@@ -65,6 +63,8 @@ export default class HelloWorldScene extends Phaser.Scene
 
     create()
     {
+        const {width, height} = this.scale // Width and Height
+
         this.createPlayerAnims();
         // START OF MAPMAKING
         const map = this.make.tilemap({ key: 'tilemap'});
@@ -72,8 +72,12 @@ export default class HelloWorldScene extends Phaser.Scene
 
         const ground = map.createLayer('ground', tileset)
         ground.setCollisionByProperty({collides: true})
+        ground.setDepth(49);
 
         const flowers = map.createLayer('flowers', tileset)
+        flowers.setInteractive()
+        flowers.setDepth(51);
+
 
         const objectsLayer = map.getObjectLayer('objects')
         objectsLayer.objects.forEach(objData => {
@@ -81,7 +85,8 @@ export default class HelloWorldScene extends Phaser.Scene
 
             switch (name) {
                 case 'player-spawn': {
-                    this.player = this.generatePlayer(this, x!, y!);
+                    this.player = this.generatePlayer( x!, y!);
+                    this.player.setDepth(50);
                 }
             }
         })
@@ -93,77 +98,42 @@ export default class HelloWorldScene extends Phaser.Scene
         // Bee anims
 
         this.physics.add.collider(this.player!, ground, () => {
+            if (this.player?.body.touching.up) {
+                return;
+            }
             this.isGrounded = true;
         })
 
         this.cameras.main.startFollow(this.player!);
         this.cameras.main.setZoom(3.5);
 
-        /*
+        const fullWidth = 2100;
 
-        const fullWidth = 300;
-
-        const createAligned = (scene, totalWidth, texture, scrollFactor) => {
-            const w = scene.textures.get(texture).getSourceImage().width
-            const count = Math.ceil(totalWidth / w) * scrollFactor
-        
-            let x = 0
-            for (let i = 0; i < count; ++i)
-            {
-                const m = scene.add.image(x, scene.scale.height, texture)
-                    .setOrigin(0, 1)
-                    .setScrollFactor(scrollFactor)
-        
-                x += m.width
-            }
-        }
-
-        this.add.image(400,300,'sky');
+        const sky = this.add.image(width*0.5,height*0.5,'sky').setDepth(0);
         this.add.text(10, 12, 'Energy');
         this.createBarBackground(10, 50, fullWidth);
         this.hearts = this.createHearts(10 + fullWidth + 30, 50);
-        this.platforms = this.physics.add.staticGroup();
-        const ground = this.platforms.create(400,600, 'ground') as Phaser.Physics.Arcade.Sprite;
-        ground.setScale(2).refreshBody();
-        
-        ground.setScrollFactor(0.5);
-
-        createAligned(this, 800, 'ground', 0.5);
-
-        this.player = generatePlayer(this);
-
-        this.enemy = this.physics.add.sprite(500, 450,'bear')
-        this.enemy.setCollideWorldBounds(true)
-
-        this.plant = this.physics.add.sprite(300, 450, 'flower')
-        this.plant.setCollideWorldBounds(true)
-        this.plant.setScale(.25)
 
         cloudsWhite = this.add.tileSprite(640, 200, 1280, 400, "clouds-white");
         cloudsWhiteSmall = this.add.tileSprite(640, 200, 1280, 400, "clouds-white-small");
-
-        
-
-        this.physics.add.collider(this.player, this.platforms);
-        this.physics.add.collider(this.enemy, this.platforms);
-        this.physics.add.collider(this.plant, this.platforms);
-
-        
-
-        this.physics.add.overlap(this.player, this.enemy, this.handleHitEnemy, undefined, this);
-        this.physics.add.collider(this.plant, this.platforms);
     
         this.scene.launch('ui-scene', { controller: this});
 
         scoreText = this.add.text(16, 80, 'Resources: 0', { fontSize: '32px', fill: '#000' });
         energyText = this.add.text(15, 35, 'Energy: 100', { fontSize: '32px', fill: '#000' });
-        */
+    }
+
+    private collectFlower(flower: FlowerController): void {
+        if (flower.getHasNectar()) {
+            this.points++;
+            flower.removeNectar();
+        }
     }
 
 
     // PLAYER FUNCTIONS
-    private generatePlayer(scene: Phaser.Scene, x: number, y: number): Phaser.Physics.Arcade.Sprite {
-        let player: Phaser.Physics.Arcade.Sprite =  scene.physics.add.sprite( x, y, 'bee');
+    private generatePlayer(x: number, y: number): Phaser.Physics.Arcade.Sprite {
+        let player: Phaser.Physics.Arcade.Sprite =  this.physics.add.sprite( x, y, 'bee');
         player.setBounce(0.0);
         player.setGravityY(250);
         player.setScale(0.2);
@@ -217,23 +187,26 @@ export default class HelloWorldScene extends Phaser.Scene
                 player.anims.play('player-walking', true);
             } else {
                 player.setVelocityX(0);
+                player.setAccelerationX(0)
                 player.anims.play('player-idle')
             } 
             
             if (keys.up?.isDown) {
                 this.isGrounded = false;
-                player.setVelocityY(-100);
+                player.setVelocityY(-150);
+            } else {
+                player.setAccelerationY(100);
             }
 
         } else {
             if(keys.left?.isDown) {
                 player.flipX = false;
-                player.setAccelerationX(-300);
+                player.setAccelerationX(-200);
                 player.anims.play('player-flying', true);
             } 
             else if (keys.right?.isDown) {
                 player.flipX = true;
-                player.setAccelerationX(300);
+                player.setAccelerationX(200);
                 player.anims.play('player-flying', true);
             } else {
                 player.setAccelerationX(0);
@@ -311,8 +284,8 @@ export default class HelloWorldScene extends Phaser.Scene
     update() {
         this.beeController(this.keys, this.player);
 
-        //cloudsWhite.tilePositionX += 0.5;
-        //cloudsWhiteSmall.tilePositionX += 0.25;
+        cloudsWhite.tilePositionX += 0.5;
+        cloudsWhiteSmall.tilePositionX += 0.25;
 
         //this.plant.tilePositionX += 1;
         //this.platforms.tilePositionX += 0.5;

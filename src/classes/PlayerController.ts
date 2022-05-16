@@ -1,3 +1,4 @@
+/*
 import StateMachine from "~/statemachine/StateMachine"
 
 export default class PlayerController {
@@ -12,3 +13,4 @@ export default class PlayerController {
 
     }
 }
+*/

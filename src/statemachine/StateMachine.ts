@@ -1,5 +1,5 @@
 // Yoinked from https://www.youtube.com/watch?v=mHlB7h2pixU
-
+/*
 interface IState
 {
 	name: string
@@ -85,3 +85,4 @@ export default class StateMachine
         }
 	}
 }
+*/
