@@ -22,6 +22,7 @@ export default class Game extends Phaser.Scene
     private isGrounded: boolean;
     private flowers;
     private pickups;
+    private flowerGroup;
 
 	constructor()
 	{
@@ -36,6 +37,7 @@ export default class Game extends Phaser.Scene
 
     init() {
         this.keys = this.input.keyboard.createCursorKeys();
+        this.flowerGroup = this.add.group();
     }
 
 	preload()
@@ -47,6 +49,8 @@ export default class Game extends Phaser.Scene
             frameWidth: 300, frameHeight: 300
         })
 
+
+        this.load.image('flower', 'assets/flower-tile.png', );
         this.load.image('tiles', 'assets/world_tiles.png', );
         this.load.tilemapTiledJSON('tilemap', 'assets/map.json');
             
@@ -92,23 +96,26 @@ export default class Game extends Phaser.Scene
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-    findcoords(array: number[]): Phaser.Physics.Arcade.Sprite[] {
+    
+    findcoords(array: number[]): void {
         let tmpArr: Phaser.Physics.Arcade.Sprite[] = [];
         let count = 0;
         for (let y = 0; y < 25; y++) {
             for (let x = 0; x < 100; x++) {
                 if (array[y*100 + x] === 1) {
-                    this.physics.add.overlap(this.player!, tmpArr[count], this.handleHitPlant, undefined, this);
-                    tmpArr.push(this.physics.add.sprite(x, y, 'flower-tile'))
-                    count++;
+                    this.flowerGroup.add(this.physics.add.sprite(x * 21, y * 21, 'flower'))
+                    
+                    //tmpArr.push(this.physics.add.sprite(x, y, 'flower-tile'))
+                    //this.physics.add.overlap(this.player!, tmpArr[count], this.handleHitPlant, undefined, this);
+                    //count++;
                 }
             }
         }
-        return tmpArr;
     }
 
     create()
     {
+
         const {width, height} = this.scale // Width and Height
 
         this.createPlayerAnims();
@@ -136,17 +143,17 @@ export default class Game extends Phaser.Scene
             // this.physics.add.overlap(this.player!, pickupGroup, collectFlower, undefined, this);
         })
 
-        function collectFlower(player, pickup) {
+        function collectFlower(player, flower) {
             console.log('flower collected');
             score++;
         }
 
 
 
-
         // Here she blows
-        const plantArr: Phaser.Physics.Arcade.Sprite[] = this.findcoords(this.bigfatarr);
-
+        this.findcoords(this.bigfatarr);
+        this.physics.add.overlap(this.player!, this.flowerGroup, collectFlower, undefined, this);
+        
 
         // END OF MAPMAKING
 
