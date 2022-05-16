@@ -35,6 +35,9 @@ export default class HelloWorldScene extends Phaser.Scene
         this.load.spritesheet('heart', 'assets/hearts.png', {
             frameWidth: 300, frameHeight: 300
         })
+
+        this.load.image('tiles', 'assets/world_tiles.png', );
+        this.load.tilemapTiledJSON('tilemap', 'assets/map.json');
             
         this.load.image('ground', 'assets/platform.png');
         this.load.image('bear', 'assets/bear.png');
@@ -58,6 +61,42 @@ export default class HelloWorldScene extends Phaser.Scene
 
     create()
     {
+        // START OF MAPMAKING
+        const map = this.make.tilemap({ key: 'tilemap'});
+        const tileset = map.addTilesetImage('grass-world', 'tiles');
+
+        const ground = map.createLayer('ground', tileset)
+
+        this.cameras.main.scrollY = 0;
+        ground.setCollisionByProperty({collides: true})
+
+
+
+        // END OF MAPMAKING
+
+        // Bee anims
+        this.anims.create({
+            key: 'left',
+            frames: this.anims.generateFrameNumbers('bee', { 
+                start: 6, end: 11
+            }),
+            frameRate: 10,
+            repeat: 1
+        })
+
+        this.anims.create({
+            key: 'right',
+            frames: this.anims.generateFrameNumbers('bee', {
+                start: 0, end: 5
+            }),
+            frameRate: 10,
+            repeat: 1
+        })
+
+
+
+        /*
+
         const fullWidth = 300;
 
         const createAligned = (scene, totalWidth, texture, scrollFactor) => {
@@ -99,23 +138,7 @@ export default class HelloWorldScene extends Phaser.Scene
         cloudsWhite = this.add.tileSprite(640, 200, 1280, 400, "clouds-white");
         cloudsWhiteSmall = this.add.tileSprite(640, 200, 1280, 400, "clouds-white-small");
 
-        this.anims.create({
-            key: 'left',
-            frames: this.anims.generateFrameNumbers('bee', { 
-                start: 6, end: 11
-            }),
-            frameRate: 10,
-            repeat: 1
-        })
-
-        this.anims.create({
-            key: 'right',
-            frames: this.anims.generateFrameNumbers('bee', {
-                start: 0, end: 5
-            }),
-            frameRate: 10,
-            repeat: 1
-        })
+        
 
         this.physics.add.collider(this.player, this.platforms);
         this.physics.add.collider(this.enemy, this.platforms);
@@ -130,6 +153,7 @@ export default class HelloWorldScene extends Phaser.Scene
 
         scoreText = this.add.text(16, 80, 'Resources: 0', { fontSize: '32px', fill: '#000' });
         energyText = this.add.text(15, 35, 'Energy: 100', { fontSize: '32px', fill: '#000' });
+        */
     }
 
     private handleHitEnemy(p: Phaser.GameObjects.GameObject, b: Phaser.GameObjects.GameObject) {
@@ -192,8 +216,8 @@ export default class HelloWorldScene extends Phaser.Scene
     update() {
         beeController(this.keys, this.player);
 
-        cloudsWhite.tilePositionX += 0.5;
-        cloudsWhiteSmall.tilePositionX += 0.25;
+        //cloudsWhite.tilePositionX += 0.5;
+        //cloudsWhiteSmall.tilePositionX += 0.25;
 
         //this.plant.tilePositionX += 1;
         //this.platforms.tilePositionX += 0.5;
