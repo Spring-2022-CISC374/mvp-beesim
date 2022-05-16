@@ -1,43 +1,32 @@
-import { World } from 'matter';
 import Phaser, { Physics } from 'phaser';
-var score = 0;
-var scoreText;
 var energy = 100;
 var energyText;
 var cloudsWhite, cloudsWhiteSmall;
 
 export default class Game extends Phaser.Scene
 {
-    private platforms?: Phaser.Physics.Arcade.StaticGroup;
     private player?: Phaser.Physics.Arcade.Sprite;
     private enemy?: Phaser.Physics.Arcade.Sprite;
-    private plant?: Phaser.Physics.Arcade.Sprite;
     private keys?: Phaser.Types.Input.Keyboard.CursorKeys;
 
-    private indexArr: number[];
-    private points: number;
+    private score: number;
     private health: number;
-    private hearts: Phaser.GameObjects.Sprite[];
     private canTakeDamage: boolean;
     private isGrounded: boolean;
-    private flowers;
-    private pickups;
     private flowerGroup;
 
-	constructor()
-	{
-		super('hello-world');
-        this.indexArr = [];
+	constructor() {
+		super('game');
         this.health = 3;
-        this.hearts = []
-        this.canTakeDamage = true;
         this.isGrounded = true;
-        this.points = 0;        
+        this.score = 0;        
 	}
 
     init() {
         this.keys = this.input.keyboard.createCursorKeys();
         this.flowerGroup = this.add.group();
+
+        this.scene.launch("UIScene");
     }
 
 	preload()
@@ -45,9 +34,7 @@ export default class Game extends Phaser.Scene
         this.load.spritesheet('bee', 'assets/cropped_bees.png', {
             frameWidth: 130, frameHeight: 118
         })
-        this.load.spritesheet('heart', 'assets/hearts.png', {
-            frameWidth: 300, frameHeight: 300
-        })
+        
 
 
         this.load.image('flower', 'assets/flower-tile.png', );
@@ -59,15 +46,6 @@ export default class Game extends Phaser.Scene
 
         this.load.image('clouds-white', 'assets/clouds-white.png');
         this.load.image("clouds-white-small", 'assets/clouds-white-small.png');
-        
-
-        this.load.image('left-cap', 'assets/barHorizontal_green_left.png');
-        this.load.image('middle', 'assets/barHorizontal_green_mid.png');
-        this.load.image('right-cap', 'assets/barHorizontal_green_right.png');
-
-        this.load.image('left-cap-shadow', 'assets/barHorizontal_shadow_left.png');
-        this.load.image('middle-shadow', 'assets/barHorizontal_shadow_mid.png');
-        this.load.image('right-shadow', 'assets/barHorizontal_shadow_right.png');
     }
 
     const bigfatarr: number[] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -104,10 +82,6 @@ export default class Game extends Phaser.Scene
             for (let x = 0; x < 100; x++) {
                 if (array[y*100 + x] === 1) {
                     this.flowerGroup.add(this.physics.add.sprite(x * 21, y * 21 + 10, 'flower').setDepth(49))
-                    
-                    //tmpArr.push(this.physics.add.sprite(x, y, 'flower-tile'))
-                    //this.physics.add.overlap(this.player!, tmpArr[count], this.handleHitPlant, undefined, this);
-                    //count++;
                 }
             }
         }
@@ -145,7 +119,7 @@ export default class Game extends Phaser.Scene
 
         function collectFlower(player, flower) {
             console.log('flower collected');
-            score++;
+            this.score++;
         }
 
 
@@ -176,16 +150,10 @@ export default class Game extends Phaser.Scene
     }
 
     private regroundPlayer(player, ground) {
-        if (player?.body.touching.up) {
-            return;
+        if (player?.body.touching.down) {
+            this.isGrounded = true;
         }
-        this.isGrounded = true;
-    }
-
-    
-    private collectFlower(player, pickup) {
-        console.log('flower collected');
-        score++;
+        
     }
 
     // PLAYER FUNCTIONS
@@ -303,15 +271,6 @@ export default class Game extends Phaser.Scene
         const normalX = xdiff / magnitude;
         const normalY = ydiff / magnitude;
         player?.setVelocity(normalX * 500, normalY * 500);
-    }
-
-    
-    private handleHitPlant(player: Phaser.GameObjects.GameObject, b: Phaser.GameObjects.GameObject) {
-        this.add.text(100, 300, 'Yay, nectar!');
-        for (let i = 0; i < 20; i++) {
-            score = score + 1;
-        scoreText.setText('Resources: ' + score);
-        }
     }
 
     private createBarBackground(x: number, y: number, fullWidth: number) {
