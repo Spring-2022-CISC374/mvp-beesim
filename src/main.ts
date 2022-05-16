@@ -1,20 +1,24 @@
-import Phaser, { Scene } from 'phaser'
+import Phaser from 'phaser'
 
-import HelloWorldScene from './scenes/HelloWorldScene'
+import Game from './scenes/Game'
+import UI from './scenes/UIScene'
+import GameOver from './scenes/GameOverScene'
 
-const config = {
+const config: Phaser.Types.Core.GameConfig = {
+	type: Phaser.AUTO,
 	scale: {
-		mode:Phaser.Scale.FIT
+		mode: Phaser.Scale.ENVELOP,
+		width: 2100,
+		height: 525
 	},
-	width: 2100,
-	height: 525,
 	physics: {
 		default: 'arcade',
 		arcade: {
-			gravity: { y: 200 }
+			debug: true
 		}
 	},
-	scene: [HelloWorldScene]
+	scene: [Game, UI, GameOver]
+	
 }
 
 export default new Phaser.Game(config)

@@ -1,4 +1,6 @@
+import { World } from 'matter';
 import Phaser from 'phaser';
+import Flower from '~/classes/Flower';
 import FlowerController from '~/classes/Flower';
 var score = 0;
 var scoreText;
@@ -6,7 +8,7 @@ var energy = 100;
 var energyText;
 var cloudsWhite, cloudsWhiteSmall;
 
-export default class HelloWorldScene extends Phaser.Scene
+export default class Game extends Phaser.Scene
 {
     private platforms?: Phaser.Physics.Arcade.StaticGroup;
     private player?: Phaser.Physics.Arcade.Sprite;
@@ -14,6 +16,7 @@ export default class HelloWorldScene extends Phaser.Scene
     private plant?: Phaser.Physics.Arcade.Sprite;
     private keys?: Phaser.Types.Input.Keyboard.CursorKeys;
 
+    private indexArr: number[];
     private points: number;
     private health: number;
     private hearts: Phaser.GameObjects.Sprite[];
@@ -23,10 +26,13 @@ export default class HelloWorldScene extends Phaser.Scene
 	constructor()
 	{
 		super('hello-world');
+        this.indexArr = [];
         this.health = 3;
         this.hearts = []
         this.canTakeDamage = true;
         this.isGrounded = true;
+        this.points = 0;
+        
 	}
 
     init() {
@@ -75,8 +81,10 @@ export default class HelloWorldScene extends Phaser.Scene
         ground.setDepth(49);
 
         const flowers = map.createLayer('flowers', tileset)
-        flowers.setInteractive()
-        flowers.setDepth(51);
+        flowers.tilemap.forEachTile(tile => this.indexArr.push(tile.index));
+        this.physics.add.overlap(this.player!, flowers , () => {
+
+        });
 
 
         const objectsLayer = map.getObjectLayer('objects')
@@ -90,6 +98,8 @@ export default class HelloWorldScene extends Phaser.Scene
                 }
             }
         })
+
+        this.physics.add.overlap(this.player!, flowers, () )
 
 
 
@@ -123,10 +133,10 @@ export default class HelloWorldScene extends Phaser.Scene
         energyText = this.add.text(15, 35, 'Energy: 100', { fontSize: '32px', fill: '#000' });
     }
 
-    private collectFlower(flower: FlowerController): void {
+    private collectFlower(flower: Tile): void {
         if (flower.getHasNectar()) {
             this.points++;
-            flower.removeNectar();
+            flower.deactivate();
         }
     }
 

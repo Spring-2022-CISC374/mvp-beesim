@@ -1,5 +1,5 @@
 import Phaser from 'phaser'
-import HelloWorldScene from './HelloWorldScene';
+import HelloWorldScene from './Game';
 import eventsCenter from '../classes/eventCenter';
 
 export default class UIScene extends Phaser.Scene
