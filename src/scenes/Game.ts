@@ -18,7 +18,7 @@ export default class Game extends Phaser.Scene
     private stamina: number;
 
 	constructor() {
-		super('game');
+		super('Game');
         this.health = 3;
         this.isGrounded = true;
         this.score = 0;
@@ -37,7 +37,9 @@ export default class Game extends Phaser.Scene
         this.load.spritesheet('bee', 'assets/cropped_bees.png', {
             frameWidth: 130, frameHeight: 118
         })
-        
+
+        this.load.image('mountain-close', 'assets/mountain-close.png');
+        this.load.image('mountain-far', 'assets/mountain-far.png');
 
 
         this.load.image('flower', 'assets/flower-tile.png', );
@@ -90,9 +92,7 @@ export default class Game extends Phaser.Scene
         }
     }
 
-    create()
-    {
-
+    create() {
         const {width, height} = this.scale // Width and Height
 
         this.createPlayerAnims();
@@ -110,26 +110,17 @@ export default class Game extends Phaser.Scene
 
         objectsLayer.objects.forEach(objData => {
             const { x, y, name } = objData
-
             switch (name) {
                 case 'player-spawn': {
                     this.player = this.generatePlayer( x!, y!);
                     this.player.setDepth(50);
                 }
             }
-            // this.physics.add.overlap(this.player!, pickupGroup, collectFlower, undefined, this);
         })
-
-        function collectFlower(player, flower) {
-            console.log('flower collected');
-            this.score++;
-        }
-
-
 
         // Here she blows
         this.findcoords(this.bigfatarr);
-        this.physics.add.overlap(this.player!, this.flowerGroup, collectFlower, undefined, this);
+        this.physics.add.overlap(this.player!, this.flowerGroup, this.collectFlower, undefined, this);
         
 
         // END OF MAPMAKING
@@ -143,17 +134,43 @@ export default class Game extends Phaser.Scene
 
         const fullWidth = 2100;
 
-        const sky = this.add.image(width*0.5,height*0.5,'sky').setDepth(0);
-        this.add.text(10, 12, 'Energy');
+        function makeLoopingBackground(img: Phaser.GameObjects.Image, key: string, scene: Phaser.Scene): Phaser.GameObjects.Image[]{
+            
+            return [ img,
+                scene.add.image(width*0.5 - img.displayWidth, height*0.5, key).setDepth(img.depth).setScrollFactor(img.scrollFactorX,img.scrollFactorY).setScale(img.scale),
+                scene.add.image(width*0.5 + img.displayWidth, height*0.5, key).setDepth(img.depth).setScrollFactor(img.scrollFactorX,img.scrollFactorY).setScale(img.scale)
+            ];
+        }
+
+        const sky = this.add.image(width*0.5,height*0.5,'sky').setDepth(0).setOrigin(0.5, 1);
+        
+        const mountainclose = this.add.image(width*0.5,height*0.5,'mountain-close').setDepth(4).setScrollFactor(0.09, 0.12).setScale(0.2);
+        const mountainsclose = makeLoopingBackground(mountainclose, 'mountain-close', this);
+
+        const mountainfar = this.add.image(width*0.5,height*0.5,'mountain-far').setDepth(2).setScrollFactor(0.07, 0.1).setScale(0.2);
+        const mountainsfar = makeLoopingBackground(mountainfar, 'mountain-far', this);
+
 
         
-        cloudsWhite = this.add.tileSprite(width * 0.5, height * 0.5, 2100, 1575, "clouds-white");
-        cloudsWhiteSmall = this.add.tileSprite(width * 0.5, height * 0.5, 2100, 1575, "clouds-white-small");
+        cloudsWhite = this.add.tileSprite(width * 0.5, height * 0.5, 2100, 1575, "clouds-white").setDepth(3).setScrollFactor(0.1);
+        cloudsWhiteSmall = this.add.tileSprite(width * 0.5, height * 0.5, 2100, 1575, "clouds-white-small").setDepth(1).setScrollFactor(0);
     
         this.scene.launch('ui-scene', { controller: this});
     }
 
-    private regroundPlayer(player: Phaser.Physics.Arcade.Sprite, ground) {
+    private collectFlower(player, flower) {
+        if (flower.alpha == 1) {
+            console.log('flower collected');
+            flower.alpha = 0.65;
+            this.score++;
+            eventsCenter.emit('update-score-counter', this.score)
+            if (this.score === 1) {
+                this.win();
+            }
+        }
+    }
+
+    private regroundPlayer(player, ground) {
         if (player.body.deltaY() > 0) {
             this.isGrounded = true;
         }
@@ -237,7 +254,7 @@ export default class Game extends Phaser.Scene
             if (keys.up?.isDown) {
                 this.loseStamina()
                 this.isGrounded = false;
-                player.setVelocityY(-150);
+                player.setVelocityY(-120);
             } else {
                 player.setAccelerationY(100);
             }
@@ -295,6 +312,17 @@ export default class Game extends Phaser.Scene
         const normalX = xdiff / magnitude;
         const normalY = ydiff / magnitude;
         player?.setVelocity(normalX * 500, normalY * 500);
+    }
+
+    private win() {
+        const centerX = this.cameras.main.centerX
+        const centerY = this.cameras.main.centerY
+        console.log("you win")
+        this.add.text(centerX, centerY-30, "You Win!\nReturning to title screen",{align:'center', color:"black"}).setOrigin(0.5, 0.5).setScrollFactor(0).setDepth(120);
+        this.scene.stop(this.scene.get("UIScene"))
+        this.time.delayedCall(3000, () => {
+            this.scene.switch('TitleScene')
+        })
     }
     
     update() {

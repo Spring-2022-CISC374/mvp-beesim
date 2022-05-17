@@ -5,6 +5,7 @@ import eventsCenter from '../classes/eventCenter';
 export default class UIScene extends Phaser.Scene {
     private hearts: Phaser.GameObjects.Sprite[];
     private staminaBar: Phaser.GameObjects.Image[];
+    private scoreText: Phaser.GameObjects.Text;
 
     private maxBarWidth = 750;
 
@@ -26,6 +27,8 @@ export default class UIScene extends Phaser.Scene {
         this.load.image('left-green-cap', 'assets/barHorizontal_green_left.png')
         this.load.image('middle-green', 'assets/barHorizontal_green_mid.png')
         this.load.image('right-green-cap', 'assets/barHorizontal_green_right.png')
+
+        this.load.image('flowercounter', 'assets/flower-counter.png')
         
         this.load.spritesheet('heart', 'assets/hearts.png', {
             frameWidth: 300, frameHeight: 300
@@ -34,6 +37,10 @@ export default class UIScene extends Phaser.Scene {
 
     create() {
         const {width, height} = this.scale // Width and Height
+
+        const flowercounterbox = this.makeFlowerCounter(1930, 130, 0.5);
+        this.scoreText = this.add.text(flowercounterbox.x - 60, flowercounterbox.y, "0", {color:"black", resolution:18}).setOrigin(0.4, 0.5).setScale(5).setScrollFactor(0);
+        eventsCenter.on('update-score-counter', this.updateScore, this)
 
         this.staminaBar = this.createStaminaBar(55, 100, this.maxBarWidth, 3.5)
         eventsCenter.on('update-stamina', this.updateStamina, this)
@@ -69,6 +76,22 @@ export default class UIScene extends Phaser.Scene {
         return [leftGreenCap, middleGreenCap, rightGreenCap]
     }
 
+    private makeFlowerCounter(x,y,scale): Phaser.GameObjects.Image {
+        const img = this.add.image(x, y, 'flowercounter').setScale(scale).setScrollFactor(0);
+        return img;
+    }
+
+    private updateStamina(stamina: number) {
+        const remaining = this.maxBarWidth * (stamina * 0.01);
+        this.staminaBar[1].displayWidth = remaining;
+        this.staminaBar[2].x = this.staminaBar[1].x + this.staminaBar[1].displayWidth;
+        console.log("stamina updated")
+    }
+
+    private updateScore(score: number) {
+        this.scoreText.text = score.toString();
+    }
+
     private createHearts(x: number, y: number): Phaser.GameObjects.Sprite[] {
         const h1: Phaser.GameObjects.Sprite = this.add.sprite(x, y, 'heart').setScale(.4)
             .setOrigin(0, 0.5). setScrollFactor(0);
@@ -80,12 +103,5 @@ export default class UIScene extends Phaser.Scene {
             .setOrigin(0, 0.5). setScrollFactor(0);
 
         return [h1, h2, h3];
-    }
-
-    private updateStamina(stamina: number) {
-        const remaining = this.maxBarWidth * (stamina * 0.01);
-        this.staminaBar[1].displayWidth = remaining;
-        this.staminaBar[2].x = this.staminaBar[1].x + this.staminaBar[1].displayWidth;
-        console.log("stamina updated")
     }
 }

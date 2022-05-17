@@ -2,7 +2,7 @@ import Phaser from 'phaser'
 
 import Game from './scenes/Game'
 import UI from './scenes/UIScene'
-import GameOver from './scenes/GameOverScene'
+import TitleScene from './scenes/TitleScene'
 
 const config: Phaser.Types.Core.GameConfig = {
 	type: Phaser.AUTO,
@@ -14,10 +14,10 @@ const config: Phaser.Types.Core.GameConfig = {
 	physics: {
 		default: 'arcade',
 		arcade: {
-			debug: true
+			debug: false
 		}
 	},
-	scene: [Game, UI, GameOver]
+	scene: [TitleScene, Game, UI]
 	
 }
 
