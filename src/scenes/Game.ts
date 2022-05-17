@@ -1,8 +1,9 @@
 import Phaser, { Physics } from 'phaser';
-var energy = 100;
-var energyText;
-var cloudsWhite, cloudsWhiteSmall;
+import eventsCenter from '~/classes/eventCenter';
 
+var doesStaminaMatter = false;
+
+var cloudsWhite, cloudsWhiteSmall;
 export default class Game extends Phaser.Scene
 {
     private player?: Phaser.Physics.Arcade.Sprite;
@@ -14,12 +15,14 @@ export default class Game extends Phaser.Scene
     private canTakeDamage: boolean;
     private isGrounded: boolean;
     private flowerGroup;
+    private stamina: number;
 
 	constructor() {
 		super('game');
         this.health = 3;
         this.isGrounded = true;
-        this.score = 0;        
+        this.score = 0;
+        this.stamina = 100;
 	}
 
     init() {
@@ -141,16 +144,17 @@ export default class Game extends Phaser.Scene
         const fullWidth = 2100;
 
         const sky = this.add.image(width*0.5,height*0.5,'sky').setDepth(0);
-        this.add.text(10, 12, 'Energy');        this.hearts = this.createHearts(10 + fullWidth + 30, 50);
+        this.add.text(10, 12, 'Energy');
 
+        
         cloudsWhite = this.add.tileSprite(width * 0.5, height * 0.5, 2100, 1575, "clouds-white");
         cloudsWhiteSmall = this.add.tileSprite(width * 0.5, height * 0.5, 2100, 1575, "clouds-white-small");
     
         this.scene.launch('ui-scene', { controller: this});
     }
 
-    private regroundPlayer(player, ground) {
-        if (player?.body.touching.down) {
+    private regroundPlayer(player: Phaser.Physics.Arcade.Sprite, ground) {
+        if (player.body.deltaY() > 0) {
             this.isGrounded = true;
         }
         
@@ -192,6 +196,20 @@ export default class Game extends Phaser.Scene
             repeat: 1
         })
     }
+
+    private loseStamina(): void {
+        if (this.stamina >= 0.2 && doesStaminaMatter) {
+            this.stamina -= 1
+            eventsCenter.emit('update-stamina', this.stamina)
+        }
+    }
+
+    private recoverStamina(): void {
+        if (this.stamina <= 99.8 && doesStaminaMatter) {
+            this.stamina += 2
+            eventsCenter.emit('update-stamina', this.stamina)
+        }
+    }
     
     /*
     * Controls the bee
@@ -217,6 +235,7 @@ export default class Game extends Phaser.Scene
             } 
             
             if (keys.up?.isDown) {
+                this.loseStamina()
                 this.isGrounded = false;
                 player.setVelocityY(-150);
             } else {
@@ -238,12 +257,17 @@ export default class Game extends Phaser.Scene
                 player.anims.play('player-flying', true);
             }
             
-            if (keys.up?.isDown) {
+            if (keys.up?.isDown && this.stamina > 0.05) {
                 this.isGrounded = false;
                 player.setAccelerationY(-500);
+                this.loseStamina()
             }  else {
                 player.setAccelerationY(0);
             }
+        }
+
+        if (this.isGrounded) {
+            this.recoverStamina();
         }
     
         
@@ -272,41 +296,11 @@ export default class Game extends Phaser.Scene
         const normalY = ydiff / magnitude;
         player?.setVelocity(normalX * 500, normalY * 500);
     }
-
-    private createBarBackground(x: number, y: number, fullWidth: number) {
-        const leftShadowCap = this.add.image(x, y, 'left-cap')
-            .setOrigin(0, 0.5).setScale(.2);
-
-        const middleShadowCap = this.add.image(leftShadowCap.x + leftShadowCap.width, y, 'middle')
-            .setOrigin(0, 0.5).setScale(.2);
-            middleShadowCap.displayWidth = fullWidth;
-
-        this.add.image(middleShadowCap.x + middleShadowCap.displayWidth, y, 'right-cap')
-            .setOrigin(0, 0.5).setScale(.2);
-    }
-
-    private createHearts(x: number, y: number): Phaser.GameObjects.Sprite[] {
-        let h1: Phaser.GameObjects.Sprite = this.add.sprite(x, y, 'heart').setScale(0.1)
-            .setOrigin(0, 0.5);
-            h1.setScrollFactor(0);
-
-        let h2: Phaser.GameObjects.Sprite = this.add.sprite(h1.x + h1.displayWidth + 15, y, 'heart', 0).setScale(0.1)
-            .setOrigin(0, 0.5);
-            h1.setScrollFactor(0);
-
-        let h3: Phaser.GameObjects.Sprite = this.add.sprite(h2.x + h2.displayWidth + 15, y, 'heart', 0).setScale(0.1)
-            .setOrigin(0, 0.5);
-            h3.setScrollFactor(0);
-            return [h1,h2,h3];
-    }
     
     update() {
         this.beeController(this.keys, this.player);
 
         cloudsWhite.tilePositionX += 0.5;
         cloudsWhiteSmall.tilePositionX += 0.2;
-
-        //this.plant.tilePositionX += 1;
-        //this.platforms.tilePositionX += 0.5;
     }
 }

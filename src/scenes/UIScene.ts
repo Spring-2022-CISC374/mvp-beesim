@@ -3,7 +3,10 @@ import HelloWorldScene from './Game';
 import eventsCenter from '../classes/eventCenter';
 
 export default class UIScene extends Phaser.Scene {
-    private hearts: Phaser.Physics.Arcade.Sprite[];
+    private hearts: Phaser.GameObjects.Sprite[];
+    private staminaBar: Phaser.GameObjects.Image[];
+
+    private maxBarWidth = 750;
 
     constructor() {
         super('ui-scene')
@@ -32,13 +35,15 @@ export default class UIScene extends Phaser.Scene {
     create() {
         const {width, height} = this.scale // Width and Height
 
-        this.createHearts(70, 225);
-        this.createStaminaBar(55, 100, 750, 3.5)
+        this.staminaBar = this.createStaminaBar(55, 100, this.maxBarWidth, 3.5)
+        eventsCenter.on('update-stamina', this.updateStamina, this)
+
+        this.hearts = this.createHearts(70, 225);
 
         this.cameras.main.centerOn(width*.5, height*.5);
     }
 
-    private createStaminaBar(x: number, y: number, fullWidth: number, scale: number): void {
+    private createStaminaBar(x: number, y: number, fullWidth: number, scale: number ): Phaser.GameObjects.Image[] {
         const leftShadowCap = this.add.image(x, y, 'left-shadow-cap')
             .setOrigin(0, 0.5).setScale(scale);
 
@@ -56,20 +61,31 @@ export default class UIScene extends Phaser.Scene {
             .setOrigin(0, 0.5).setScale(scale);
             middleGreenCap.displayWidth = fullWidth;
 
-        this.add.image(middleGreenCap.x + middleGreenCap.displayWidth, y, 'right-green-cap')
+        const rightGreenCap = this.add.image(middleGreenCap.x + middleGreenCap.displayWidth, y, 'right-green-cap')
             .setOrigin(0, 0.5).setScale(scale);
         
         this.add.text((middleGreenCap.x + middleGreenCap.displayWidth) * 0.5, middleGreenCap.y, "Flight Stamina", {color:"black", fontStyle:"Verdana", resolution:18}).setOrigin(0.4, 0.5).setScale(5).setScrollFactor(0);
+
+        return [leftGreenCap, middleGreenCap, rightGreenCap]
     }
 
-    private createHearts(x: number, y: number): void {
-        const h1 = this.add.image(x, y, 'heart').setScale(.4)
+    private createHearts(x: number, y: number): Phaser.GameObjects.Sprite[] {
+        const h1: Phaser.GameObjects.Sprite = this.add.sprite(x, y, 'heart').setScale(.4)
             .setOrigin(0, 0.5). setScrollFactor(0);
 
-        const h2 = this.add.image(h1.x + h1.displayWidth + 15, y, 'heart').setScale(0.4)
+        const h2: Phaser.GameObjects.Sprite = this.add.sprite(h1.x + h1.displayWidth + 15, y, 'heart').setScale(0.4)
             .setOrigin(0, 0.5). setScrollFactor(0);;
 
-        this.add.image(h2.x + h2.displayWidth + 15, y, 'heart').setScale(0.4)
-            .setOrigin(0, 0.5). setScrollFactor(0);;
+        const h3: Phaser.GameObjects.Sprite = this.add.sprite(h2.x + h2.displayWidth + 15, y, 'heart').setScale(0.4)
+            .setOrigin(0, 0.5). setScrollFactor(0);
+
+        return [h1, h2, h3];
+    }
+
+    private updateStamina(stamina: number) {
+        const remaining = this.maxBarWidth * (stamina * 0.01);
+        this.staminaBar[1].displayWidth = remaining;
+        this.staminaBar[2].x = this.staminaBar[1].x + this.staminaBar[1].displayWidth;
+        console.log("stamina updated")
     }
 }
