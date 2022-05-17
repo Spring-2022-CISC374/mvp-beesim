@@ -1,7 +1,7 @@
 import Phaser, { Physics } from 'phaser';
 import eventsCenter from '~/classes/eventCenter';
 
-var doesStaminaMatter = false;
+var doesStaminaMatter = true;
 
 var cloudsWhite, cloudsWhiteSmall;
 export default class Game extends Phaser.Scene
