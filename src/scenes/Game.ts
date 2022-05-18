@@ -164,7 +164,7 @@ export default class Game extends Phaser.Scene
             flower.alpha = 0.65;
             this.score++;
             eventsCenter.emit('update-score-counter', this.score)
-            if (this.score === 1) {
+            if (this.score === 27) {
                 this.win();
             }
         }
